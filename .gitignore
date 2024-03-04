@@ -16,6 +16,10 @@
 **/*.a
 **/*.dylib
 **/*.so
+**/*.tar.gz
+
+# Build dirs
+dist
 
 # MAC
 **/*.DS_Store
