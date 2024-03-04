@@ -1,0 +1,21 @@
+# Python Directories
+**/*__pycache__
+**/*.egg-info
+
+# Python virtual environment
+**/*venv
+
+# IntelliJ Directories
+**/*.idea
+
+# CMake Files
+**/*CMakeLists.txt
+
+# Build outputs
+**/*.exe
+**/*.a
+**/*.dylib
+**/*.so
+
+# MAC
+**/*.DS_Store
