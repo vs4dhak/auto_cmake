@@ -1,18 +1,19 @@
 #!/usr/bin/env python
 
 """
-Description: Generates a windows shared library
+Description: Generates a macosx shared library
 """
 
 __author__ = "Veda Sadhak"
 __license__ = "MIT"
-__version__ = "2024.03.03"
+__version__ = "2024.03.08"
 
 import os
+import shutil
 
 from auto_cmake import AutoCMake
 
-class AutoCMakeLibSharedWin():
+class AutoCMakeLibSharedMacIntel():
 
     def __init__(self, **cmake_config):
 
@@ -39,7 +40,8 @@ class AutoCMakeLibSharedWin():
         self.ac.add("cmake_minimum_required(VERSION {})".format(self.ac.cmake_version))
         self.ac.add("project({} VERSION {})".format(self.ac.proj_name, self.ac.version))
         self.ac.add("set(CMAKE_CXX_STANDARD 11)")
-        self.ac.add('set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")\n')
+        self.ac.add('set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")')
+        self.ac.add('set(CMAKE_OSX_ARCHITECTURES "x86_64")\n')
 
         # Setting flags
         self.ac.add('SET_PROPERTY(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)\n')
@@ -65,13 +67,13 @@ class AutoCMakeLibSharedWin():
         if self.jni_dir:
             self.ac.add('include_directories("{}/include")'.format(self.jni_dir))
             self.ac.add('link_directories("{}/include")'.format(self.jni_dir))
-            self.ac.add('include_directories("{}/include/win32")'.format(self.jni_dir))
-            self.ac.add('link_directories("{}/include/win32")\n'.format(self.jni_dir))
+            self.ac.add('include_directories("{}/include/darwin")'.format(self.jni_dir))
+            self.ac.add('link_directories("{}/include/darwin")\n'.format(self.jni_dir))
 
         # Setting shared lib properties
         self.ac.add('set_target_properties({} PROPERTIES COMPILE_FLAGS "-fPIC")\n'.format(self.ac.proj_name))
 
-        # Static linkage is required for successful Windows DLL creation.
+        # Link libraries
         for lib in self.libs:
             self.ac.add('target_link_libraries({} {})\n'.format(self.ac.proj_name, self.ac.get_posix_path(lib)))
 
@@ -87,7 +89,7 @@ class AutoCMakeLibSharedWin():
         self.ac.add("")
 
         # Writing main CMakeLists.txt
-        cmake_build_path = self.ac.get_posix_path(os.path.join(self.ac.proj_dir, "cmake-build-debug"))
+        cmake_build_path = self.ac.get_posix_path(os.path.join(self.ac.proj_dir, "build"))
         if not os.path.exists(cmake_build_path):
             os.makedirs(cmake_build_path)
         self.ac.write(cmake_build_path)

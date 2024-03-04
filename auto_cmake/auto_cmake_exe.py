@@ -1,33 +1,26 @@
 #!/usr/bin/env python
 
 """
-Description: Generates a macosx shared library
+Description: Generates an executable target
 """
 
 __author__ = "Veda Sadhak"
 __license__ = "MIT"
-__version__ = "2024.03.03"
+__version__ = "2024.03.08"
 
 import os
-import shutil
 
 from auto_cmake import AutoCMake
 
-class AutoCMakeLibSharedMacIntel():
+class AutoCMakeExe():
 
     def __init__(self, **cmake_config):
 
         # Creating instance
         self.ac = AutoCMake(**cmake_config)
-        self.libs = cmake_config["libs"]
 
         # Setting flags
         self.flags = cmake_config["flags"]
-
-        if "jni_dir" in cmake_config.keys():
-            self.jni_dir = cmake_config["jni_dir"]
-        else:
-            self.jni_dir = None
 
     def run(self):
 
@@ -40,11 +33,7 @@ class AutoCMakeLibSharedMacIntel():
         self.ac.add("cmake_minimum_required(VERSION {})".format(self.ac.cmake_version))
         self.ac.add("project({} VERSION {})".format(self.ac.proj_name, self.ac.version))
         self.ac.add("set(CMAKE_CXX_STANDARD 11)")
-        self.ac.add('set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")')
-        self.ac.add('set(CMAKE_OSX_ARCHITECTURES "x86_64")\n')
-
-        # Setting flags
-        self.ac.add('SET_PROPERTY(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)\n')
+        self.ac.add('set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")\n')
 
         # Set headers and sources
         self.ac.add("set(SOURCES".format(self.ac.proj_name))
@@ -54,8 +43,8 @@ class AutoCMakeLibSharedMacIntel():
             self.ac.add('    "{}"'.format(self.ac.get_posix_path(headers)))
         self.ac.add(")\n")
 
-        # Adding the shared lib
-        self.ac.add("add_library({} SHARED {})\n".format(self.ac.proj_name, r"${SOURCES}"))
+        # Adding the executable
+        self.ac.add("add_executable({} {})\n".format(self.ac.proj_name, r"${SOURCES}"))
 
         # Setting flags
         self.ac.add("target_compile_definitions({} PUBLIC".format(self.ac.proj_name))
@@ -63,19 +52,9 @@ class AutoCMakeLibSharedMacIntel():
             self.ac.add('    "{}"'.format(flag))
         self.ac.add(")\n")
 
-        # Add JNI libs
-        if self.jni_dir:
-            self.ac.add('include_directories("{}/include")'.format(self.jni_dir))
-            self.ac.add('link_directories("{}/include")'.format(self.jni_dir))
-            self.ac.add('include_directories("{}/include/darwin")'.format(self.jni_dir))
-            self.ac.add('link_directories("{}/include/darwin")\n'.format(self.jni_dir))
-
-        # Setting shared lib properties
+        # Setting executable properties
+        self.ac.add('target_compile_definitions({} PUBLIC OC_MODE_TEST)'.format(self.ac.proj_name))
         self.ac.add('set_target_properties({} PROPERTIES COMPILE_FLAGS "-fPIC")\n'.format(self.ac.proj_name))
-
-        # Link libraries
-        for lib in self.libs:
-            self.ac.add('target_link_libraries({} {})\n'.format(self.ac.proj_name, self.ac.get_posix_path(lib)))
 
         # Adding include directories
         for include in self.ac.includes:
@@ -89,7 +68,7 @@ class AutoCMakeLibSharedMacIntel():
         self.ac.add("")
 
         # Writing main CMakeLists.txt
-        cmake_build_path = self.ac.get_posix_path(os.path.join(self.ac.proj_dir, "build"))
+        cmake_build_path = self.ac.get_posix_path(os.path.join(self.ac.proj_dir, "cmake-build-debug"))
         if not os.path.exists(cmake_build_path):
             os.makedirs(cmake_build_path)
         self.ac.write(cmake_build_path)

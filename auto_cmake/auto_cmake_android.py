@@ -6,13 +6,13 @@ Description: Generates an executable target
 
 __author__ = "Veda Sadhak"
 __license__ = "MIT"
-__version__ = "2024.03.03"
+__version__ = "2024.03.08"
 
 import os
 
 from auto_cmake import AutoCMake
 
-class AutoCMakeExe():
+class AutoCMakeAndroid():
 
     def __init__(self, **cmake_config):
 
@@ -32,11 +32,12 @@ class AutoCMakeExe():
         # Adding the compile config
         self.ac.add("cmake_minimum_required(VERSION {})".format(self.ac.cmake_version))
         self.ac.add("project({} VERSION {})".format(self.ac.proj_name, self.ac.version))
-        self.ac.add("set(CMAKE_CXX_STANDARD 11)")
-        self.ac.add('set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")\n')
+        #self.ac.add("set(CMAKE_CXX_STANDARD 11)")
+        #self.ac.add('set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")\n')
 
         # Set headers and sources
-        self.ac.add("set(SOURCES".format(self.ac.proj_name))
+        self.ac.add("add_library({}".format(self.ac.proj_name))
+        self.ac.add("    SHARED")
         for source in self.ac.sources:
             self.ac.add('    "{}"'.format(self.ac.get_posix_path(source)))
         for headers in self.ac.headers:
@@ -44,17 +45,17 @@ class AutoCMakeExe():
         self.ac.add(")\n")
 
         # Adding the executable
-        self.ac.add("add_executable({} {})\n".format(self.ac.proj_name, r"${SOURCES}"))
+        #self.ac.add("add_executable({} {})\n".format(self.ac.proj_name, r"${SOURCES}"))
 
         # Setting flags
         self.ac.add("target_compile_definitions({} PUBLIC".format(self.ac.proj_name))
         for flag in self.flags:
-            self.ac.add('    "{}"'.format(flag))
+           self.ac.add('    "{}"'.format(flag))
         self.ac.add(")\n")
 
         # Setting executable properties
-        self.ac.add('target_compile_definitions({} PUBLIC OC_MODE_TEST)'.format(self.ac.proj_name))
-        self.ac.add('set_target_properties({} PROPERTIES COMPILE_FLAGS "-fPIC")\n'.format(self.ac.proj_name))
+        #self.ac.add('target_compile_definitions({} PUBLIC OC_MODE_TEST)'.format(self.ac.proj_name))
+        #self.ac.add('set_target_properties({} PROPERTIES COMPILE_FLAGS "-fPIC")\n'.format(self.ac.proj_name))
 
         # Adding include directories
         for include in self.ac.includes:
@@ -67,8 +68,18 @@ class AutoCMakeExe():
             self.ac.add('target_include_directories({} PUBLIC "{}")'.format(self.ac.proj_name, path))
         self.ac.add("")
 
+        self.ac.add("find_library(".format(self.ac.proj_name))
+        self.ac.add("    log-lib")
+        self.ac.add("    log")
+        self.ac.add(")\n")
+
+        self.ac.add("target_link_libraries(")
+        self.ac.add("    {}".format(self.ac.proj_name))
+        self.ac.add(r"    ${log-lib}")
+        self.ac.add(")\n")
+
         # Writing main CMakeLists.txt
-        cmake_build_path = self.ac.get_posix_path(os.path.join(self.ac.proj_dir, "cmake-build-debug"))
+        cmake_build_path = self.ac.get_posix_path(os.path.join(self.ac.proj_dir, os.pardir, os.pardir))
         if not os.path.exists(cmake_build_path):
             os.makedirs(cmake_build_path)
         self.ac.write(cmake_build_path)

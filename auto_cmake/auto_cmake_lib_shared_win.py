@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 
 """
-Description: Generates a nux shared library
+Description: Generates a windows shared library
 """
 
 __author__ = "Veda Sadhak"
 __license__ = "MIT"
-__version__ = "2024.03.03"
+__version__ = "2024.03.08"
 
 import os
 
 from auto_cmake import AutoCMake
 
-class AutoCMakeLibSharedNux():
+class AutoCMakeLibSharedWin():
 
     def __init__(self, **cmake_config):
 
@@ -65,13 +65,13 @@ class AutoCMakeLibSharedNux():
         if self.jni_dir:
             self.ac.add('include_directories("{}/include")'.format(self.jni_dir))
             self.ac.add('link_directories("{}/include")'.format(self.jni_dir))
-            self.ac.add('include_directories("{}/include/linux")'.format(self.jni_dir))
-            self.ac.add('link_directories("{}/include/linux")\n'.format(self.jni_dir))
+            self.ac.add('include_directories("{}/include/win32")'.format(self.jni_dir))
+            self.ac.add('link_directories("{}/include/win32")\n'.format(self.jni_dir))
 
         # Setting shared lib properties
         self.ac.add('set_target_properties({} PROPERTIES COMPILE_FLAGS "-fPIC")\n'.format(self.ac.proj_name))
 
-        # Link libraries
+        # Static linkage is required for successful Windows DLL creation.
         for lib in self.libs:
             self.ac.add('target_link_libraries({} {})\n'.format(self.ac.proj_name, self.ac.get_posix_path(lib)))
 

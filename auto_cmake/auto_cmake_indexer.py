@@ -6,7 +6,7 @@ Description: Builds a source index.
 
 __author__ = "Veda Sadhak"
 __license__ = "MIT"
-__version__ = "2024.03.03"
+__version__ = "2024.03.08"
 
 import os
 

@@ -23,3 +23,6 @@ dist
 
 # MAC
 **/*.DS_Store
+
+# Environment files
+.env
