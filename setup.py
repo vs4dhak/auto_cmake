@@ -2,11 +2,12 @@ from setuptools import setup, find_packages
 
 setup(
     name='auto-cmake',
-    version='2024.03.01',
+    version='2024.03.03',
     author='Veda Sadhak',
     author_email='vedasadhak@gmail.com',
     description='Automate setup of CMake projects',
     long_description=open('readme.md').read(),
+    include_package_data=True,
     long_description_content_type='text/markdown',
     url='https://github.com/veda-s4dhak/auto-cmake.git',
     packages=find_packages(),
