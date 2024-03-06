@@ -6,12 +6,12 @@ from auto_cmake.auto_cmake import AutoCMake
 from auto_cmake.auto_cmake_exe import AutoCMakeExe
 
 # Source paths
-proj_dir = os.path.abspath(os.path.join(os.getcwd(), "resources", "sample_c_project"))
+proj_dir = os.path.abspath(os.path.join(os.getcwd(), "resources", "sample_c_proj"))
 build_dir = os.path.abspath(os.path.join(proj_dir, "build"))
 
 # Configuration
 cmake_config = dict()
-cmake_config['proj_name'] = 'sample_c_project'
+cmake_config['proj_name'] = 'sample_c_proj'
 cmake_config['proj_dir'] = proj_dir
 cmake_config['version'] = "2024.03.08"
 cmake_config['cmake_version'] = '3.15'
