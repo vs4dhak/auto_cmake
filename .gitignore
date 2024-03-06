@@ -19,7 +19,9 @@
 **/*.tar.gz
 
 # Build dirs
-dist
+**/*dist
+**/*build
+**/*cmake-build-debug
 
 # MAC
 **/*.DS_Store
