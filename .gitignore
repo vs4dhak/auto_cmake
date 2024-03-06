@@ -26,5 +26,8 @@
 # MAC
 **/*.DS_Store
 
+# XCode
+**/*xcuserdata
+
 # Environment files
 .env
