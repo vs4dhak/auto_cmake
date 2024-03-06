@@ -6,14 +6,13 @@ Description: Generates a macosx shared library
 
 __author__ = "Veda Sadhak"
 __license__ = "MIT"
-__version__ = "2024.03.08"
 
 import os
 import shutil
 
-from auto_cmake import AutoCMake
+from .auto_cmake import AutoCMake
 
-class AutoCMakeLibSharedMacIntel():
+class AutoCMakeLibSharedMac():
 
     def __init__(self, **cmake_config):
 
@@ -29,6 +28,11 @@ class AutoCMakeLibSharedMacIntel():
         else:
             self.jni_dir = None
 
+        if "arch" in cmake_config.keys():
+            self.arch = cmake_config["arch"]
+        else:
+            raise ("cmake_config['arch'] must be specified")
+
     def run(self):
 
         # Recursively adding all source
@@ -41,7 +45,7 @@ class AutoCMakeLibSharedMacIntel():
         self.ac.add("project({} VERSION {})".format(self.ac.proj_name, self.ac.version))
         self.ac.add("set(CMAKE_CXX_STANDARD 11)")
         self.ac.add('set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")')
-        self.ac.add('set(CMAKE_OSX_ARCHITECTURES "x86_64")\n')
+        self.ac.add('set(CMAKE_OSX_ARCHITECTURES "{}")\n'.format(self.arch))
 
         # Setting flags
         self.ac.add('SET_PROPERTY(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)\n')
@@ -92,4 +96,4 @@ class AutoCMakeLibSharedMacIntel():
         cmake_build_path = self.ac.get_posix_path(os.path.join(self.ac.proj_dir, "build"))
         if not os.path.exists(cmake_build_path):
             os.makedirs(cmake_build_path)
-        self.ac.write(cmake_build_path)
+        self.ac.write(self.ac.build_dir)

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='auto_cmake',
-    version='2024.03.08',
+    version='2024.03.09',
     author='Veda Sadhak',
     author_email='vedasadhak@gmail.com',
     description='Automate setup of CMake projects',
@@ -11,7 +11,9 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/veda-s4dhak/auto-cmake.git',
     packages=find_packages(),
-    install_requires=[],
+    install_requires=[
+        'pbxproj'
+    ],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',

@@ -6,157 +6,141 @@ Description: Generates a macosx shared library
 
 __author__ = "Veda Sadhak"
 __license__ = "MIT"
-__version__ = "2024.03.08"
 
-import os
-import shutil
+import os.path
 
-from auto_cmake import AutoCMake
+from pbxproj import XcodeProject
 
-class AutoCMakeIos():
+from .auto_cmake import AutoCMake
+
+class AutoCMakeLibStaticIos():
 
     def __init__(self, **cmake_config):
 
         # Creating instance
         self.ac = AutoCMake(**cmake_config)
-        self.libs = cmake_config["libs"]
-
-        # Setting flags
-        self.flags = cmake_config["flags"]
 
         # Public headers
-        self.public_headers = cmake_config["public_headers"]
+        if "public_headers" in cmake_config.keys():
+            self.public_headers = cmake_config["public_headers"]
 
-        if "jni_dir" in cmake_config.keys():
-            self.jni_dir = cmake_config["jni_dir"]
+        # XCode proj path
+        if "xcode_proj" in cmake_config.keys():
+            self.xcode_proj = self.ac.get_posix_path(cmake_config["xcode_proj"])
         else:
-            self.jni_dir = None
+            raise ("cmake_config['xcode_proj'] must be specified (e.g. an empty XCode Static Lib project")
+
+    # def xcode_find_file(self, project, file_path):
+    #     file_name = os.path.basename(file_path)
+    #     for file in project..files:
+    #         if file_name == file.get('name') or file_name == file.get('path').split('/')[-1]:
+    #             return file
+    #     return None
+
+    def xcode_find_file(self, project, file_path):
+        file_name = os.path.basename(file_path)
+        # Iterate over all PBXFileReference objects in the project
+        for obj in project.objects.get_objects_in_section('PBXFileReference'):
+            # Access the 'name' and 'path' attributes directly, with a fallback
+            obj_name = obj.name if 'name' in obj else None
+            obj_path = obj.path if 'path' in obj else None
+
+            # Now compare using these variables
+            if file_name == obj_name or file_name == obj_path.split('/')[-1]:
+                return obj
+        return None
+
+    def xcode_rmv_header(self, project, header):
+        for target in project.objects.get_targets():
+            file = self.xcode_find_file(project, header)
+            if file:
+                for config in project.objects[target.buildConfigurationList].buildConfigurations:
+                    # Each config is a reference to a PBXBuildConfiguration object
+                    # You can access its buildSettings dictionary directly
+                    build_settings = project.objects[config].buildSettings
+                    if 'LIBRARY_SEARCH_PATHS' in build_settings:
+                        library_search_paths = build_settings['LIBRARY_SEARCH_PATHS']
+
+                        if header in library_search_paths:
+                            library_search_paths.remove(header)
+                            build_settings['LIBRARY_SEARCH_PATHS'] = library_search_paths
+
+                        dir = os.path.dirname(file.path)
+                        if type(library_search_paths) == list:
+                            for path in library_search_paths:
+                                if dir in path:
+                                    library_search_paths.remove(path)
+                                    build_settings['LIBRARY_SEARCH_PATHS'] = library_search_paths
+                        elif type(library_search_paths) == str:
+                            if dir in library_search_paths:
+                                build_settings['LIBRARY_SEARCH_PATHS'] = ''
+
+                # Update header search paths
+                project.remove_header_search_paths(header, target_name=target.name)
+                project.remove_header_search_paths(file.path, target_name=target.name)
+
+                # Remove file
+                project.remove_file_by_id(file.get_id())
+
+    def xcode_add_headers(self):
+
+        # Load XCode project
+        project = XcodeProject.load(self.xcode_proj)
+
+        # Add header paths to all targets in the project
+        for header in self.ac.headers:
+            self.xcode_rmv_header(project, header)
+            for target in project.objects.get_targets():
+                project.add_header_search_paths([header], target_name=target.name, recursive=False)
+                project.add_file(header, parent=None, tree='SOURCE_ROOT', target_name=target.name)
+
+        # Save the project file
+        project.save()
+
+    def xcode_add_sources(self):
+
+        # Load XCode project
+        project = XcodeProject.load(self.xcode_proj)
+
+        # Add header paths to all targets in the project
+        for target in project.objects.get_targets():
+            for source in self.ac.sources:
+                file = self.xcode_find_file(project, source)
+                if file:
+                    project.remove_file_by_id(file.get_id())
+                project.add_file(source, target_name=target.name)
+
+        # Save the project file
+        project.save()
+
+    def xcode_rmv_headers(self):
+
+        # Load XCode project
+        project = XcodeProject.load(self.xcode_proj)
+
+        # Add header paths to all targets in the project
+        for header in self.ac.headers:
+            self.xcode_rmv_header(project, header)
+
+        # Save the project file
+        project.save()
+
+    def xcode_rmv_sources(self):
+
+        # Load XCode project
+        project = XcodeProject.load(self.xcode_proj)
+
+        # Add header paths to all targets in the project
+        for source in self.ac.sources:
+            file = self.xcode_find_file(project, source)
+            if file:
+                project.remove_file_by_id(file.get_id())
+
+        # Save the project file
+        project.save()
 
     def run(self):
 
-        # Recursively adding all source
-        for _dir in self.ac.include_dirs:
-            self.ac.add_libraries(os.path.join(self.ac.proj_dir, _dir))
-            self.ac.clear()
-
-        # Adding the compile config
-        self.ac.add("cmake_minimum_required(VERSION {})".format(self.ac.cmake_version))
-        self.ac.add("project({} VERSION {})".format(self.ac.proj_name, self.ac.version))
-        self.ac.add("set(CMAKE_CXX_STANDARD 11)")
-        self.ac.add('set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")\n')
-        self.ac.add('set(CMAKE_SUPPRESS_REGENERATION true)\n')
-        # self.ac.add('set(CMAKE_OSX_ARCHITECTURES arm64)\n')
-        self.ac.add('set(CMAKE_SYSTEM_NAME SIMULATOR64)\n')
-        self.ac.add('set(CMAKE_SYSTEM_VERSION 16.4)\n')
-        # self.ac.add('set(CMAKE_OSX_SYSROOT "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator16.4.sdk")\n')
-
-        # Setting flags
-        self.ac.add('SET_PROPERTY(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)\n')
-
-        # Set sources
-        self.ac.add("set(SOURCES".format(self.ac.proj_name))
-        for source in self.ac.sources:
-            self.ac.add('    "{}"'.format(self.ac.get_posix_path(source)))
-        self.ac.add(")\n")
-
-        # Add headers
-        self.ac.add('set(HEADERS')
-        for header in self.ac.headers:
-            self.ac.add('    "{}"'.format(header))
-        self.ac.add(")")
-
-        # Adding the shared lib
-        self.ac.add(f"add_library({self.ac.proj_name} SHARED")
-        self.ac.add(r"    ${SOURCES}")
-        self.ac.add(r"    ${HEADERS}")
-        self.ac.add(")\n")
-
-        # Add headers
-        self.ac.add('set(INCLUDES')
-        for include in self.ac.includes:
-            self.ac.add('    "{}"'.format(include))
-        self.ac.add(")")
-        self.ac.add('include_directories(${INCLUDES})\n')
-
-        # Add headers
-        self.ac.add('set(PUBLIC_HEADERS')
-        for header in self.ac.headers:
-            #for public_header in self.public_headers:
-            #    if public_header in header:
-                    self.ac.add('    "{}"'.format(header))
-        self.ac.add(")")
-
-        # Set target properties
-        self.ac.add(f"set_target_properties({self.ac.proj_name}")
-        self.ac.add(f"    PROPERTIES")
-        self.ac.add(f"    FRAMEWORK TRUE")
-        self.ac.add(f"    FRAMEWORK_VERSION C")
-        self.ac.add(f"    MACOSX_FRAMEWORK_IDENTIFIER {self.ac.proj_name}")
-        self.ac.add( "    MACOSX_FRAMEWORK_INFO_PLIST ${PROJECT_SOURCE_DIR}/../platform/ios/Info.plist")
-        self.ac.add(f"    VERSION 16.4.0")
-        self.ac.add(f"    SOVERSION 1.0.0")
-        self.ac.add(f'    XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"')
-        self.ac.add( '    PUBLIC_HEADER ${PUBLIC_HEADERS}')
-        self.ac.add(")\n")
-
-        # for header in self.ac.headers:
-        #     for public_header in self.public_headers:
-        #         if public_header in header:
-        #             self.ac.add(f"install(FILES {header} DESTINATION include)")
-        # self.ac.add("\n")
-
-        # Setting flags
-        self.ac.add("target_compile_definitions({} PUBLIC".format(self.ac.proj_name))
-        for flag in self.flags:
-            self.ac.add('    "{}"'.format(flag))
-        self.ac.add(")\n")
-
-        # Link libraries
-        for lib in self.libs:
-            self.ac.add('target_link_libraries({} {})\n'.format(self.ac.proj_name, self.ac.get_posix_path(lib)))
-
-        # Adding headers
-        for include in self.ac.includes:
-            if include not in self.ac.library_paths:
-                self.ac.add('target_include_directories({} PUBLIC "{}")'.format(self.ac.proj_name, include))
-        self.ac.add("")
-
-        # Adding libraries
-        for path in self.ac.library_paths:
-            self.ac.add('target_include_directories({} PUBLIC "{}")'.format(self.ac.proj_name, path))
-        self.ac.add("")
-
-        # Writing main CMakeLists.txt
-        cmake_build_path = self.ac.get_posix_path(os.path.join(self.ac.proj_dir, "build"))
-        if not os.path.exists(cmake_build_path):
-            os.makedirs(cmake_build_path)
-        self.ac.write(cmake_build_path)
-
-        # Copy over headers
-        xcode_file = f"{self.ac.proj_name}.framework"
-        dst = os.path.join(cmake_build_path, "Debug", xcode_file, "Headers")
-        if not os.path.exists(dst):
-            os.makedirs(dst)
-        for header in self.ac.headers:
-            header_path, header_file = os.path.split(header)
-            shutil.copyfile(header, os.path.join(dst, header_file))
-
-        # Copy over Info.plist
-        src = os.path.join(self.ac.proj_dir, "platform", "ios", "Info.plist")
-        dst = os.path.join(cmake_build_path, "Debug", xcode_file, "Info.plist")
-        shutil.copyfile(src, dst)
-
-        # xcode_file = f"{self.ac.proj_name}.xcodeproj"
-        # src = self.ac.get_posix_path(os.path.join(self.ac.proj_dir, "platform", "ios", xcode_file))
-        # dst = os.path.join(cmake_build_path, xcode_file)
-        # if os.path.exists(dst):
-        #     shutil.rmtree(dst)
-        # shutil.copytree(src, dst)
-        # print("Copied xcode config")
-
-        # Copy .cmake file
-        src_file = self.ac.get_posix_path(os.path.join(self.ac.proj_dir, "Scripts", "cmake", "auto_cmake", "resources", "ios.toolchain.cmake"))
-        dst_file = self.ac.get_posix_path(os.path.join(self.ac.proj_dir, "build", "ios.toolchain.cmake"))
-        shutil.copyfile(src_file, dst_file)
-
-
+        self.ac.index()
+        self.xcode_add_headers()
+        self.xcode_add_sources()

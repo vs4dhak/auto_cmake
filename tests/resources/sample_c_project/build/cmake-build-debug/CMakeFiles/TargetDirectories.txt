@@ -1,0 +1,3 @@
+/Users/home/git/auto_cmake/tests/resources/sample_c_project/build/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/home/git/auto_cmake/tests/resources/sample_c_project/build/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/home/git/auto_cmake/tests/resources/sample_c_project/build/cmake-build-debug/CMakeFiles/sample_c_project.dir

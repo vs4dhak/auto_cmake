@@ -1,0 +1,14 @@
+# ninja log v5
+106	153	1709548603244961593	libsample_c_project.dylib	60805dae1ded633f
+2	106	1709548603195553562	CMakeFiles/sample_c_project.dir/Users/home/git/auto_cmake/tests/resources/sample_c_project/src/subtract/subtract.c.o	b639adb283db9e38
+2	106	1709548603195554062	CMakeFiles/sample_c_project.dir/Users/home/git/auto_cmake/tests/resources/sample_c_project/src/divide/divide.c.o	9f2d9bd77791f53
+1	106	1709548603195534520	CMakeFiles/sample_c_project.dir/Users/home/git/auto_cmake/tests/resources/sample_c_project/test/test.c.o	9b48c507e745bc18
+2	106	1709548603195517478	CMakeFiles/sample_c_project.dir/Users/home/git/auto_cmake/tests/resources/sample_c_project/src/add/add.c.o	6dcdab93525768e0
+2	106	1709548603195543103	CMakeFiles/sample_c_project.dir/Users/home/git/auto_cmake/tests/resources/sample_c_project/src/multiply/multiply.c.o	366f2faf391f5929
+1	41	1709548619699794338	build.ninja	3a374af6bee78102
+0	34	1709548624697914830	CMakeFiles/sample_c_project.dir/Users/home/git/auto_cmake/tests/resources/sample_c_project/src/divide/divide.c.o	2cbc07baf3ea533b
+0	34	1709548624697904663	CMakeFiles/sample_c_project.dir/Users/home/git/auto_cmake/tests/resources/sample_c_project/src/subtract/subtract.c.o	256398f47cd55389
+0	34	1709548624697892455	CMakeFiles/sample_c_project.dir/Users/home/git/auto_cmake/tests/resources/sample_c_project/src/multiply/multiply.c.o	85f186a6b1a5109f
+1	34	1709548624697916455	CMakeFiles/sample_c_project.dir/Users/home/git/auto_cmake/tests/resources/sample_c_project/src/add/add.c.o	24c84b6b899a2838
+0	34	1709548624697916580	CMakeFiles/sample_c_project.dir/Users/home/git/auto_cmake/tests/resources/sample_c_project/test/test.c.o	419d2ec40a562f19
+34	67	1709548624732455802	sample_c_project	9ca2db0eda9b3c21

@@ -18,7 +18,7 @@ Steps:
 ```
 import os
 
-from auto_cmake_exe import AutoCMakeExe
+from .auto_cmake_exe import AutoCMakeExe
 
 # Configuration
 cmake_config = dict()

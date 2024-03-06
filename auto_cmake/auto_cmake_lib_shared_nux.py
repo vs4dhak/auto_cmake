@@ -6,11 +6,10 @@ Description: Generates a nux shared library
 
 __author__ = "Veda Sadhak"
 __license__ = "MIT"
-__version__ = "2024.03.08"
 
 import os
 
-from auto_cmake import AutoCMake
+from .auto_cmake import AutoCMake
 
 class AutoCMakeLibSharedNux():
 
@@ -87,7 +86,5 @@ class AutoCMakeLibSharedNux():
         self.ac.add("")
 
         # Writing main CMakeLists.txt
-        cmake_build_path = self.ac.get_posix_path(os.path.join(self.ac.proj_dir, "cmake-build-debug"))
-        if not os.path.exists(cmake_build_path):
-            os.makedirs(cmake_build_path)
-        self.ac.write(cmake_build_path)
+        self.ac.create_build_dir()
+        self.ac.write(self.ac.build_dir)

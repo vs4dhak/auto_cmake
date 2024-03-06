@@ -6,11 +6,11 @@ Description: Core module.
 
 __author__ = "Veda Sadhak"
 __license__ = "MIT"
-__version__ = "2024.03.08"
 
 import os
 import pathlib
-from auto_cmake_indexer import AutoCMakeIndexer
+import shutil
+from .auto_cmake_indexer import AutoCMakeIndexer
 
 class AutoCMake(AutoCMakeIndexer):
 
@@ -18,16 +18,29 @@ class AutoCMake(AutoCMakeIndexer):
 
         AutoCMakeIndexer.__init__(self, kwargs['proj_dir'])
 
+        # Project Definition
         self.proj_name = kwargs['proj_name']
         self.version = kwargs['version']
-        self.acake_version = kwargs['cmake_version']
+
+        # CMake Definition
+        self.cmake_version = kwargs['cmake_version']
+
+        # Build & Export
+        self.build_dir = self.get_posix_path(kwargs['build_dir'])
+
+        # Include & Excludes
         self.include_dirs = kwargs['include_dirs']
         self.exclude_dirs = kwargs['exclude_dirs']
         self.exclude_paths = kwargs['exclude_paths']
 
+        # Internal excludes
+        self.exclude_paths.append(self.build_dir)
+
+        # Library cache
         self.library_paths = []
         self.library_names = []
 
+        # File cache
         self.sources = []
         self.headers = []
         self.includes = []
@@ -190,3 +203,37 @@ class AutoCMake(AutoCMakeIndexer):
                     self.add_libraries(os.path.join(path,dir))
 
         self.add_library(path)
+
+    def index(self):
+
+        for _dir in self.include_dirs:
+            self.add_libraries(os.path.join(self.proj_dir, _dir))
+            self.clear()
+
+    def create_build_dir(self):
+        if not os.path.exists(self.build_dir):
+            os.makedirs(self.build_dir)
+
+    def export(self):
+
+        # Create directories
+        include_dir = self.get_posix_path(os.path.join(self.build_dir, "include"))
+        src_dir = self.get_posix_path(os.path.join(self.build_dir, "src"))
+        if not os.path.exists(include_dir):
+            os.makedirs(include_dir)
+        if not os.path.exists(src_dir):
+            os.makedirs(src_dir)
+
+        # Copy over headers
+        for header in self.headers:
+            header_path, header_file = os.path.split(header)
+            shutil.copyfile(header, os.path.join(include_dir, header_file))
+
+        # Copy over sources
+        for source in self.sources:
+            source_path, source_file = os.path.split(source)
+            shutil.copyfile(source, os.path.join(src_dir, source_file))
+
+
+
+
