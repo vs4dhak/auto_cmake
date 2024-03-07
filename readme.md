@@ -1,8 +1,23 @@
 <h2> Summary: </h2>
 
-Automate setup of CMake projects for large C & C++ projects<br>
+Automate setup of CMake projects for large C & C++ projects on all platforms: Windows, MacOS, Linux, Android, iOS and Bare-Metal<br>
 - Automatically indexes .c, .h, .cpp, .hpp files and creates entries in CMakeLists.txt
 - Automatically generates CMakeLists.txt for subdirectories and create library entries in CMakeLists.txt
+- Automatically configures XCode projects with header, source and library paths
+- Automatically configures Android projects with header, source and library paths
+
+<h2> Contents: </h2>
+
+```
+1) auto_cmake......................Source
+   1.1) resources..................CMake Toolchain Files
+2) scripts ........................Deployment Scripts
+3) tests...........................Unit Tests for Windows, MacOS, Linux, Android, iOS and Bare-Metal
+   3.1) resources .................Sample
+      3.1.1) sample_xcode_proj.....Generic Project to Validate Compilation on PC via Unit Tests
+      3.1.2) sample_android_proj...Project to Validate Compilation on Android via Unit Tests
+      3.1.3) sample_xcode_proj.....Project to Validate Compilation on iOS via Unit Tests
+```
 
 <h2> Sample Usage: </h2>
 

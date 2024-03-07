@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='auto_cmake',
-    version='2024.03.10',
+    version='2024.03.11',
     author='Veda Sadhak',
     author_email='vedasadhak@gmail.com',
     description='Automate setup of CMake projects',
