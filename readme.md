@@ -23,12 +23,14 @@ Automate setup of CMake projects for large C & C++ projects on all platforms: Wi
 
 Steps:
 
-1) Create a python script that will import AutoCMake
-2) In this file define
+1) Download auto-cmake from: https://pypi.org/project/auto-cmake/
+2) In your project define a auto cmake script (sample below)
+3) This file defines (among other things):
    1) The project name and version
    2) Directories and paths to include and exclude
    3) Compiler flags
    4) Build directory
+4) Run the script to generate the CMake project
    
 ```
 import os
@@ -56,5 +58,3 @@ cmake_config['build_dir'] = build_dir
 ac = AutoCMakeExe(**cmake_config)
 ac.run()
 ```
-
-3) Run the script to generate the CMake project
