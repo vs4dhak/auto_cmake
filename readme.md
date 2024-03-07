@@ -1,4 +1,4 @@
-<h2> Summary: </h2>
+<h2> Auto CMake: </h2>
 
 Automate setup of CMake projects for large C & C++ projects on all platforms: Windows, MacOS, Linux, Android, iOS and Bare-Metal<br>
 - Automatically indexes .c, .h, .cpp, .hpp files and creates entries in CMakeLists.txt
