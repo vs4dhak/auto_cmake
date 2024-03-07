@@ -1,4 +1,4 @@
-<h2> Auto CMake: </h2>
+<h2> Auto CMake </h2>
 
 Automate setup of CMake projects for large C & C++ projects on all platforms: Windows, MacOS, Linux, Android, iOS and Bare-Metal<br>
 - Automatically indexes .c, .h, .cpp, .hpp files and creates entries in CMakeLists.txt
@@ -6,7 +6,7 @@ Automate setup of CMake projects for large C & C++ projects on all platforms: Wi
 - Automatically configures XCode projects with header, source and library paths
 - Automatically configures Android projects with header, source and library paths
 
-<h2> Contents: </h2>
+<h2> Contents </h2>
 
 ```
 1) auto_cmake......................Source
@@ -19,7 +19,7 @@ Automate setup of CMake projects for large C & C++ projects on all platforms: Wi
       3.1.3) sample_xcode_proj.....Project to Validate Compilation on iOS via Unit Tests
 ```
 
-<h2> Sample Usage: </h2>
+<h2> Sample Usage </h2>
 
 Steps:
 
