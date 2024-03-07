@@ -32,20 +32,29 @@ Steps:
    
 ```
 import os
+import unittest
 
-from .auto_cmake_exe import AutoCMakeExe
+from auto_cmake.auto_cmake_exe import AutoCMakeExe
+
+# Source paths
+proj_dir = os.path.abspath(os.path.join(os.getcwd(), "resources", "sample_c_proj"))
+build_dir = os.path.abspath(os.path.join(proj_dir, "build"))
 
 # Configuration
 cmake_config = dict()
-cmake_config['proj_name'] = 'proj_name'
-cmake_config['proj_dir'] = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-cmake_config['version'] = '0.01'
+cmake_config['proj_name'] = 'sample_c_proj'
+cmake_config['proj_dir'] = proj_dir
+cmake_config['version'] = "2024.03.08"
 cmake_config['cmake_version'] = '3.15'
-cmake_config['exclude_folders'] = ['excluded-folder-1', 'excluded-folder-2']
+cmake_config['include_dirs'] = [proj_dir]
+cmake_config['libs'] = []
+cmake_config['flags'] = []
+cmake_config['exclude_dirs'] = []
+cmake_config['exclude_paths'] = []
+cmake_config['build_dir'] = build_dir
 
-# Generate CMake
-cme = AutoCMakeExe(**cmake_config)
-cme.run()
+ac = AutoCMakeExe(**cmake_config)
+ac.run()
 ```
 
 3) Run the script to generate the CMake project

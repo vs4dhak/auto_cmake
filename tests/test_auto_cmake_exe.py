@@ -1,8 +1,6 @@
 import os
-import json
 import unittest
 
-from auto_cmake.auto_cmake import AutoCMake
 from auto_cmake.auto_cmake_exe import AutoCMakeExe
 
 # Source paths
