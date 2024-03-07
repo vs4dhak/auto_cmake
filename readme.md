@@ -48,4 +48,4 @@ cme = AutoCMakeExe(**cmake_config)
 cme.run()
 ```
 
-3) Run the script to generate all the CMakeLists.txt files
+3) Run the script to generate the CMake project
