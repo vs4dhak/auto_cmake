@@ -10,6 +10,7 @@ __license__ = "MIT"
 import os.path
 
 from pbxproj import XcodeProject
+from pbxproj.pbxextensions import FileOptions
 
 from .auto_cmake import AutoCMake
 
@@ -30,12 +31,27 @@ class AutoCMakeLibStaticIos():
         else:
             raise ("cmake_config['xcode_proj'] must be specified (e.g. an empty XCode Static Lib project")
 
-    # def xcode_find_file(self, project, file_path):
-    #     file_name = os.path.basename(file_path)
-    #     for file in project..files:
-    #         if file_name == file.get('name') or file_name == file.get('path').split('/')[-1]:
-    #             return file
-    #     return None
+    def xcode_add_flags(self):
+
+        # Load XCode project
+        project = XcodeProject.load(self.xcode_proj)
+
+        for target in project.objects.get_targets():
+            for flag in self.ac.flags:
+                project.add_flags('OTHER_CFLAGS', f"-D{flag}", target.name)
+
+        project.save()
+
+    def xcode_rmv_flags(self):
+
+        # Load XCode project
+        project = XcodeProject.load(self.xcode_proj)
+
+        for target in project.objects.get_targets():
+            for flag in self.ac.flags:
+                project.remove_flags('OTHER_CFLAGS', f"-D{flag}", target.name)
+
+        project.save()
 
     def xcode_find_file(self, project, file_path):
         file_name = os.path.basename(file_path)
@@ -87,12 +103,13 @@ class AutoCMakeLibStaticIos():
         # Load XCode project
         project = XcodeProject.load(self.xcode_proj)
 
+        group_headers = project.get_or_create_group('headers')
+
         # Add header paths to all targets in the project
         for header in self.ac.headers:
-            self.xcode_rmv_header(project, header)
-            for target in project.objects.get_targets():
-                project.add_header_search_paths([header], target_name=target.name, recursive=False)
-                project.add_file(header, parent=None, tree='SOURCE_ROOT', target_name=target.name)
+            project.add_header_search_paths([header], recursive=False)
+            file_options = FileOptions(header_scope='Public')
+            project.add_file(header, parent=group_headers, tree='SOURCE_ROOT', file_options=file_options, force=False)
 
         # Save the project file
         project.save()
@@ -102,13 +119,11 @@ class AutoCMakeLibStaticIos():
         # Load XCode project
         project = XcodeProject.load(self.xcode_proj)
 
+        group_sources = project.get_or_create_group('sources')
+
         # Add header paths to all targets in the project
-        for target in project.objects.get_targets():
-            for source in self.ac.sources:
-                file = self.xcode_find_file(project, source)
-                if file:
-                    project.remove_file_by_id(file.get_id())
-                project.add_file(source, target_name=target.name)
+        for source in self.ac.sources:
+            project.add_file(source, parent=group_sources, tree='SOURCE_ROOT', force=False)
 
         # Save the project file
         project.save()
@@ -142,5 +157,6 @@ class AutoCMakeLibStaticIos():
     def run(self):
 
         self.ac.index()
+        self.xcode_add_flags()
         self.xcode_add_headers()
         self.xcode_add_sources()

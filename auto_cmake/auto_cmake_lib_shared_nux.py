@@ -19,9 +19,6 @@ class AutoCMakeLibSharedNux():
         self.ac = AutoCMake(**cmake_config)
         self.libs = cmake_config["libs"]
 
-        # Setting flags
-        self.flags = cmake_config["flags"]
-
         if "jni_dir" in cmake_config.keys():
             self.jni_dir = cmake_config["jni_dir"]
         else:
@@ -56,8 +53,8 @@ class AutoCMakeLibSharedNux():
 
         # Setting flags
         self.ac.add("target_compile_definitions({} PUBLIC".format(self.ac.proj_name))
-        for flag in self.flags:
-            self.ac.add('    "{}"'.format(flag))
+        for flag in self.ac.flags:
+            self.ac.add('    {}'.format(flag))
         self.ac.add(")\n")
 
         # Add JNI libs

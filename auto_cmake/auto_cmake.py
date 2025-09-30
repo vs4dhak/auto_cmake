@@ -25,6 +25,9 @@ class AutoCMake(AutoCMakeIndexer):
         # CMake Definition
         self.cmake_version = kwargs['cmake_version']
 
+        # Setting flags
+        self.flags = kwargs["flags"]
+
         # Build & Export
         self.build_dir = self.get_posix_path(kwargs['build_dir'])
 
