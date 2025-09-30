@@ -18,9 +18,6 @@ class AutoCMakeLibSharedAndroid():
         # Creating instance
         self.ac = AutoCMake(**cmake_config)
 
-        # Setting flags
-        self.flags = cmake_config["flags"]
-
     def run(self):
 
         # Recursively adding all source
@@ -44,8 +41,8 @@ class AutoCMakeLibSharedAndroid():
 
         # Setting flags
         self.ac.add("target_compile_definitions({} PUBLIC".format(self.ac.proj_name))
-        for flag in self.flags:
-           self.ac.add('    "{}"'.format(flag))
+        for flag in self.ac.flags:
+            self.ac.add('    {}'.format(flag))
         self.ac.add(")\n")
 
         # Adding include directories
@@ -63,6 +60,11 @@ class AutoCMakeLibSharedAndroid():
         self.ac.add("    log-lib")
         self.ac.add("    log")
         self.ac.add(")\n")
+
+        # Add 16KB page size alignment for Android 15+ compatibility
+        self.ac.add("# Configure 16KB page size alignment for Android 15+")
+        self.ac.add('set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,max-page-size=16384")')
+        self.ac.add("")
 
         self.ac.add("target_link_libraries(")
         self.ac.add("    {}".format(self.ac.proj_name))
